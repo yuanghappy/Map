@@ -90,10 +90,12 @@ public class Graph<E, T> {
 		
 		Vertex curr = target;
 		ArrayList<Object> path = new ArrayList<Object>();
-		path.add(0, curr.info);
+		path.add(0, curr.info.toString());
 
 		while (leadsTo.get(curr) != null) {
-			path.add(0, leadsTo.get(curr).getneighbor(curr).info);
+			path.add(0, leadsTo.get(curr).label.toString());
+			path.add(0, leadsTo.get(curr).getneighbor(curr).info.toString());
+			
 			curr = leadsTo.get(curr).getneighbor(curr);
 		}
 		System.out.print(path);

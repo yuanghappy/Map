@@ -102,7 +102,7 @@ class KevinBaconGame {
 				for(int i = 0; i < actorList.size(); i++){
 					for( int j = i+1; j < actorList.size(); j++){
 						KBGgraph.connect(actorName.get(actorList.get(i)),
-								actorName.get(actorList.get(j)), movieName.get(movieCode));
+								actorName.get(actorList.get(j)), movieName.get(Integer.parseInt(movieCode)));
 						connection++;
 					}
 				}
@@ -119,6 +119,6 @@ class KevinBaconGame {
 	
 	public static void main(String[] args) throws IOException{
 		KevinBaconGame myGame = new KevinBaconGame();
-		
+		myGame.KBGgraph.search("Sam Worthington", "Jon Curry");
 	}
 }
