@@ -102,6 +102,14 @@ public class Graph<E, T> {
 		return path;	
 	}
 	
+	public int AverageConnectivity(){
+		int TotalConnection = 0;
+		for(Vertex v : vertices.values()){
+			TotalConnection += v.neighbors.size();
+		}
+		return (int)TotalConnection/vertices.size();
+	}
+	
 	public static void main(String[] args) {
 		
 		Graph<String, String> g = new Graph<String, String>();

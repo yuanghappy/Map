@@ -1,22 +1,132 @@
 package graphs;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
 
 class KevinBaconGame {
 	HashMap<Integer, String> actorName = new HashMap<Integer, String>();
 	HashMap<Integer, String> movieName = new HashMap<Integer, String>();
 	Graph KBGgraph = new Graph();
+	JTextArea input1, input2, OutputDisplay;
+	JFrame frame;
+	private final int width=800, height=800;
+	//HashSet for non duplicate actor connections for avg. connection function
+	//HashSet
 	
 	public KevinBaconGame() throws IOException{
 		buildCodetoNameMaps();
 		buildVertices();
 		connectVertices();
+	//UI
+		//MainPanel
+		JPanel Panel = new JPanel();
+		BoxLayout layout = new BoxLayout(Panel, BoxLayout.Y_AXIS);
+		//Input Sub-panel
+		JPanel InputPanel = new JPanel();
+			//Text input area
+			input1 = new JTextArea();
+			input1.setPreferredSize(new Dimension(200, 30));
+			input1.setText("Actor 1");
+			input1.setEditable(true);
+			input1.setBackground(Color.white);
+			input2 = new JTextArea();
+			input2.setPreferredSize(new Dimension(200, 30));
+			input2.setText("Actor 2");
+			input2.setEditable(true);
+			input2.setBackground(Color.white);
+			InputPanel.setPreferredSize(new Dimension (width-50, height/4));
+			InputPanel.setBorder(BorderFactory.createTitledBorder("Input Panel"));
+			InputPanel.add(input1);
+			InputPanel.add(input2);
+			Panel.add(InputPanel);
 		
+			
+		//BUTTONS
+		//Search Button
+		JButton SearchButton = new JButton("Search");
+		SearchButton.setPreferredSize(new Dimension (100, 30));
+		SearchButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if(input1.getText().trim().equals("") || input1.getText().trim().equals("Actor 1")){
+					input1.setText("Please enter actor name");
+				}
+				if(input2.getText().trim().equals("") || input2.getText().trim().equals("Actor 1")){
+					input2.setText("Please enter actor name");
+				}
+				if(!actorName.containsValue(capitalize(input1.getText().trim().toLowerCase()))){
+					input1.setText("Actor not found");
+				}
+				if(!actorName.containsValue(capitalize(input2.getText().trim().toLowerCase()))){
+					input2.setText("Actor not found");
+				}
+				
+				//input1.setText("");
+				//input2.setText("");
+			}
+		});
+		
+		//button layout
+		JPanel ButtonPanel = new JPanel();
+		ButtonPanel.add(SearchButton);
+		ButtonPanel.setPreferredSize(new Dimension (width-50, height/4));
+		ButtonPanel.setBorder(BorderFactory.createTitledBorder("Control Panel"));
+		Panel.add(ButtonPanel);
+		
+		//Output display
+		OutputDisplay = new JTextArea();
+		OutputDisplay.setPreferredSize(new Dimension(width-50, height/4));
+		OutputDisplay.setText("Welcome to KBG!");
+		OutputDisplay.setEditable(false);
+		OutputDisplay.setBackground(Color.white);
+		Panel.add(OutputDisplay);
+		
+		//JFrame
+		frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(width, height);
+		frame.setFocusable(true);
+		frame.setResizable(false);
+		frame.add(Panel);
+		frame.setVisible(true);
+	}
+	
+	//return string with first character of each word capitalized. Input string is all lower case.
+	private String capitalize(String s){
+		char[] charArray = s.toCharArray();
+	    boolean foundSpace = true;
+
+	    for(int i = 0; i < charArray.length; i++) {
+
+	      if(Character.isLetter(charArray[i])) {  
+		      if(foundSpace) {
+		        charArray[i] = Character.toUpperCase(charArray[i]);
+		        foundSpace = false;
+		      }   
+	      }else{	  
+	    	    foundSpace = true;   
+	      }
+	    }
+	    
+	    s = String.valueOf(charArray);
+	    return s;
 	}
 	
 	private boolean buildCodetoNameMaps() throws IOException{
@@ -34,7 +144,7 @@ class KevinBaconGame {
 						if(control == 0){code += line.charAt(i);}
 						else{name += line.charAt(i);}
 					}
-					actorName.put(Integer.parseInt(code), name);
+					actorName.put(Integer.parseInt(code), name);					
 					code = "";
 					name = "";			
 				}
@@ -74,7 +184,7 @@ class KevinBaconGame {
 		int connection = 0;
 		String lastMovieCode = "";
 		String actorCode = "";
-		//reading the actors name file generating code to actor name map
+		//reader for movie-actor file
 		BufferedReader in = new BufferedReader(new FileReader("resource/movie-actors.txt"));
 		int control;
 		//Array list storing names of all actors in one movie. 
@@ -103,6 +213,7 @@ class KevinBaconGame {
 					for( int j = i+1; j < actorList.size(); j++){
 						KBGgraph.connect(actorName.get(actorList.get(i)),
 								actorName.get(actorList.get(j)), movieName.get(Integer.parseInt(movieCode)));
+						//**
 						connection++;
 					}
 				}
@@ -117,8 +228,13 @@ class KevinBaconGame {
 		return true;
 	}
 	
+	//this calculates the average number of actors each actor is connected to
+	private int avgConnectivity(){
+		return 0;
+	}
 	public static void main(String[] args) throws IOException{
 		KevinBaconGame myGame = new KevinBaconGame();
 		myGame.KBGgraph.search("Sam Worthington", "Jon Curry");
+		System.out.println(myGame.KBGgraph.AverageConnectivity());
 	}
 }
