@@ -6,7 +6,7 @@ import java.util.HashSet;
 public class Graph<E, T> {
 	
 	HashMap<E, Vertex> vertices;
-	
+
 	public Graph() {
 		vertices = new HashMap<E, Vertex>();
 	}
@@ -41,7 +41,6 @@ public class Graph<E, T> {
 		}
 	}
 
-	
 	private class Vertex {
 		E info;
 		HashSet<Edge> neighbors;
@@ -52,7 +51,6 @@ public class Graph<E, T> {
 		}
 		
 	}
-	
 	
 	public ArrayList<Object> search(E start, E target) {
 		
@@ -101,15 +99,7 @@ public class Graph<E, T> {
 		System.out.print(path);
 		return path;	
 	}
-	
-	public int AverageConnectivity(){
-		int TotalConnection = 0;
-		for(Vertex v : vertices.values()){
-			TotalConnection += v.neighbors.size();
-		}
-		return (int)TotalConnection/vertices.size();
-	}
-	
+		
 	public static void main(String[] args) {
 		
 		Graph<String, String> g = new Graph<String, String>();
