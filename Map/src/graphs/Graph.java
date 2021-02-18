@@ -96,7 +96,6 @@ public class Graph<E, T> {
 			
 			curr = leadsTo.get(curr).getneighbor(curr);
 		}
-		System.out.print(path);
 		return path;	
 	}
 		
