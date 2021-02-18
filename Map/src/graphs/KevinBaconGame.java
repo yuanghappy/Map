@@ -2,6 +2,7 @@ package graphs;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 
@@ -25,7 +27,7 @@ class KevinBaconGame {
 	HashMap<Integer, String> movieName = new HashMap<Integer, String>();
 	Graph KBGgraph = new Graph();
 	JTextArea input1, input2, OutputDisplay;
-	JButton SearchButton;
+	JButton SearchButton, AvgConnButton, MovieSearchButton, AvgMovieConnButton;
 	JFrame frame;
 	private final int width=800, height=800;
 	//Map of String and HashSet for non duplicate actor connections for avg. connection function
@@ -64,8 +66,8 @@ class KevinBaconGame {
 			
 		//BUTTONS
 		//Search Button
-		SearchButton = new JButton("Search");
-		SearchButton.setPreferredSize(new Dimension (100, 30));
+		SearchButton = new JButton("Actor Connection Search");
+		//SearchButton.setPreferredSize(new Dimension (150, 50));
 		SearchButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				//disable all buttons to prevent interruption
@@ -73,21 +75,58 @@ class KevinBaconGame {
 				search(input1.getText().trim().toLowerCase(),input2.getText().trim().toLowerCase());
 			}
 		});
+		//Average Connection Button
+		AvgConnButton = new JButton("Avg Actor Connection");
+		//AvgConnButton.setPreferredSize(new Dimension (150, 50));
+		AvgConnButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				//disable all buttons to prevent interruption
+				disableButtons(true);
+				avgConnectivity();
+			}
+		});
+		//Movie Search Button
+		MovieSearchButton = new JButton("Movie Connection Search");
+		//MovieSearchButton.setPreferredSize(new Dimension (150, 50));
+		MovieSearchButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				//disable all buttons to prevent interruption
+				disableButtons(true);
+				movieConnectivity(input1.getText().trim().toLowerCase(),input2.getText().trim().toLowerCase());
+			}
+		});
+		//Movie Average Connectivity Button
+		AvgMovieConnButton = new JButton("Avg Movie Connection");
+		//AvgMovieConnButton.setPreferredSize(new Dimension (150, 50));
+		AvgMovieConnButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				OutputDisplay.setText("Calculating...");
+				//disable all buttons to prevent interruption
+				disableButtons(true);
+				avgMovieConnectivity();
+			}
+		});
 		
 		//button layout
 		JPanel ButtonPanel = new JPanel();
+		ButtonPanel.setLayout(new GridLayout(2,2));
 		ButtonPanel.add(SearchButton);
+		ButtonPanel.add(AvgConnButton);
+		ButtonPanel.add(MovieSearchButton);
+		ButtonPanel.add(AvgMovieConnButton);
 		ButtonPanel.setPreferredSize(new Dimension (width-50, height/4));
 		ButtonPanel.setBorder(BorderFactory.createTitledBorder("Functions"));
 		Panel.add(ButtonPanel);
 		
 		//Output display
 		OutputDisplay = new JTextArea();
-		OutputDisplay.setPreferredSize(new Dimension(width-50, height/4));
+		JScrollPane scroll = new JScrollPane(OutputDisplay);
+		//OutputDisplay.setPreferredSize(new Dimension(width-50, 3*height/8));
 		OutputDisplay.setText("Welcome to KBG!");
 		OutputDisplay.setEditable(false);
 		OutputDisplay.setBackground(Color.white);
-		Panel.add(OutputDisplay);
+		scroll.setPreferredSize(new Dimension(width-50, 3*height/8));
+		Panel.add(scroll);
 		
 		//JFrame
 		frame = new JFrame();
@@ -212,13 +251,12 @@ class KevinBaconGame {
 				actorList.add(Integer.parseInt(actorCode));
 				movieCode = "";
 				actorCode = "";	
-			}else{
-				//new movie: build connections for all actors
-				//in the previous movie. Clear the previous actor list. Start new
-				//actor list for the new movie and add in actors
-				
-				//TEST
-				//build map for movie connectivity function
+			}
+			//new movie: build connections for all actors
+			//in the previous movie. Clear the previous actor list. Start new
+			//actor list for the new movie and add in actors
+			else{
+				//build map for movie connectivity function #3
 				String mN = movieName.get(Integer.parseInt(lastMovieCode));
 				if(!MovieConnMap.containsKey(mN)){
 					MovieConnMap.put(mN, new HashSet<String>());
@@ -227,19 +265,19 @@ class KevinBaconGame {
 				//connect all actors in in the same movie
 				//two for loops
 				for(int i = 0; i < actorList.size(); i++){
-					//TEST
+					//#3
 					MovieConnMap.get(mN).add(actorName.get(actorList.get(i)));
 					
 					//Second for loop
 					for( int j = i+1; j < actorList.size(); j++){
 						String n1, n2;
-					//connect vertices with edges
+					//connect vertices with edges for function #1
 						n1 = actorName.get(actorList.get(i));
 						n2 = actorName.get(actorList.get(j));
 						KBGgraph.connect(n1, n2, mN);
 						connection++;
 						
-					//build the non duplicated actor connection.
+					//build the non duplicated actor connection for function #2
 						//hashcode is used to guarantee that the same actor is used as key
 						//no matter the direction of connection.
 						String ntemp;
@@ -273,14 +311,19 @@ class KevinBaconGame {
     
 	//disable or enable all function buttons
 	//prevent interruption function execution
-	private void disableButtons(boolean b){
+	private boolean disableButtons(boolean b){
 		if(b){
 			SearchButton.setEnabled(false);
-			
+			AvgConnButton.setEnabled(false);
+			MovieSearchButton.setEnabled(false);
+			AvgMovieConnButton.setEnabled(false);
 		}else{
 			SearchButton.setEnabled(true);
-			
+			AvgConnButton.setEnabled(true);
+			MovieSearchButton.setEnabled(true);
+			AvgMovieConnButton.setEnabled(true);
 		}
+		return true;
 	}
 	
 	//FUNCTION #1
@@ -344,61 +387,115 @@ class KevinBaconGame {
 	
 	//FUNCTION #2
 	//this calculates the average number of actors each actor is connected to
-	private int avgConnectivity(){
-		int totalConnection = 0;
+	//**For maximum efficiency, most code for this method is mixed into connectVertices method
+	//mechanism of this function is also explained in connectVertices method
+	private void avgConnectivity(){
+				
+		double totalConnection = 0;
 		for(HashSet hset : NonDupMap.values()){
 			totalConnection += hset.size();
 		}
-		return (int)totalConnection/actorName.size();	
+		
+		OutputDisplay.setText(("In average, each actor is directly connected to " +
+		(Math.round((totalConnection/actorName.size())*1000.0)/1000.0) + " actors."));
+		
+		disableButtons(false);
+		return;	
 	}
 	
 	//FUNCTION #3
 	//this returns the overlapping actors between two movies and a movie connectivity score
 	private ArrayList<String> movieConnectivity(String n1, String n2){
-		n1 = n1.trim().toLowerCase();
-		n2 = n2.trim().toLowerCase();
-		ArrayList<String> commonActors = new ArrayList<String>();
-		//check if two input movies exist
-		if(!MovieConnMap.containsKey(n1) || !MovieConnMap.containsKey(n2)){
-			commonActors.add("Movie input does not exist.");
-			return commonActors; 
-		}
+	
+		//check for input validity. More efficient by confirming that inputs are valid
+		//instead of checking if they are invalid
 		
+		//NOTE: MovieConnMap is used because not all movies in movie text file are present
+		//in the movie-actor text file
+		ArrayList<String> commonActors = new ArrayList<String>();
+
+		if(MovieConnMap.containsKey(n1) && MovieConnMap.containsKey(n2)){
+			input1.setText("Actor/Movie 1");
+			input2.setText("Actor/Movie 2");
+		}
+		//Invalid input responses
+		else{
+			if(!MovieConnMap.containsKey(n1)){
+				input1.setText("Movie not found");
+			}
+			if(!MovieConnMap.containsKey(n2)){
+				input2.setText("Movie not found");
+			}
+			if(n1.equals("") || n1.equals("actor/movie 1")){
+				input1.setText("Please enter movie name");
+			}
+			if(n2.equals("") || n2.equals("actor/movie 2")){
+				input2.setText("Please enter movie name");
+			}
+			disableButtons(false);
+			return commonActors;
+		}
+				
+		//search
 		//check for common actors
 		for(String actor1 : MovieConnMap.get(n1)){
 			if(MovieConnMap.get(n2).contains(actor1)){
 				commonActors.add(capitalize(actor1));
 			}
 		}
-		if(commonActors.size()==0){commonActors.add("There is no common actor");}
+		
+		//display result
+		String output;
+		//case: no common actor
+		if(commonActors.size()==0){
+			output = "There is no common actor between <" + capitalize(n1) + "> and <" +
+					capitalize(n2) + ">.";
+		}else{
+			int ca = 0;
+			output = ("Common actors between <" + capitalize(n1) + "> and <" + capitalize(n2) +
+					">: \n");		
+			for(int i = 0; i < commonActors.size(); i++){
+				ca ++;
+				output += ("\n " + ca + ". " + commonActors.get(i));
+			}
+		}
+		
+		OutputDisplay.setText(output);
+		disableButtons(false);
 		return commonActors;
 	}
 	
 	//FUNCTION #4
+	//this calculates the average number of common actors between any two movies
+	//FUNCTION #4
 	//this returns the average number of common actors of all movies
-	private double avgMovieConnectivity(){
+	private void avgMovieConnectivity(){
 		ArrayList<String> movieNameList = new ArrayList<String>();
 		float totalConnectivity = 0;
 		float moviePairs = 0;
 		
 		//convert name of all movies from map to array list of easier operation
-		for (String n : movieName.values()){
+		for (String n : MovieConnMap.keySet()){
 			movieNameList.add(n);
 		}
+		int listSize = movieNameList.size();
 		
-		for(int i = 0; i < movieNameList.size(); i++){
-			for(int j = i+1; j < movieNameList.size(); j++){
-				//only call movieConnnectivity method once for runtime efficiency
-				ArrayList<String> commonActorList = movieConnectivity(movieNameList.get(i), movieNameList.get(j));
-				if(commonActorList.get(0).equals("There is no common actor")){continue;}
-				totalConnectivity += commonActorList.size();
+		for(int i = 0; i < listSize; i++){
+			for(int j = i+1; j < listSize; j++){
+				for(String actor1 : MovieConnMap.get(movieNameList.get(i))){
+					if(MovieConnMap.get(movieNameList.get(j)).contains(actor1)){
+						totalConnectivity++;
+					}
+				}
 				moviePairs ++;
 			}	
 		}
-		System.out.println(totalConnectivity + " " + moviePairs);
-
-		return Math.round((totalConnectivity/moviePairs)*1000)/1000.0;
+		OutputDisplay.setText("In average, any two movies have " +
+		Math.round((totalConnectivity/moviePairs)*1000)/1000.0 + " actors in common.");
+		disableButtons(false);
+		return;
 	}
+	
 	public static void main(String[] args) throws IOException{
 		KevinBaconGame myGame = new KevinBaconGame();
 		myGame.KBGgraph.search("kelly kilgour", "Lucy Briant");
