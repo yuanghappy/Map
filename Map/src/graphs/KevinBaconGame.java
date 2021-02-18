@@ -23,6 +23,11 @@ import javax.swing.JTextArea;
 
 
 class KevinBaconGame {
+	//HERE ARE THE FILE PATHS NEEDED
+	String actorsFilePath = "resource/actors.txt";
+	String moviesFilePath = "resource/movies.txt";
+	String movieToActorsFilePath = "resource/movie-actors.txt";
+	
 	HashMap<Integer, String> actorName = new HashMap<Integer, String>();
 	HashMap<Integer, String> movieName = new HashMap<Integer, String>();
 	Graph KBGgraph = new Graph();
@@ -162,7 +167,7 @@ class KevinBaconGame {
 	
 	private boolean buildCodetoNameMaps() throws IOException{
 		//reading the actors name file generating code to actor name map
-				BufferedReader in = new BufferedReader(new FileReader("resource/actors.txt"));
+				BufferedReader in = new BufferedReader(new FileReader(actorsFilePath));
 				String code = "";
 				String name = "";
 				int control;
@@ -183,7 +188,7 @@ class KevinBaconGame {
 				System.out.println("actorName size: " + actorName.size());
 				
 		//reading the movie name file generating code to movie name map
-				BufferedReader in1 = new BufferedReader(new FileReader("resource/movies.txt"));
+				BufferedReader in1 = new BufferedReader(new FileReader(moviesFilePath));
 				for(String line = in1.readLine(); line != null; line = in1.readLine()){
 					if(line.charAt(0) == 65279){line = line.substring(1);}
 					//control for reading code or name, turns to 1 once read ~
@@ -221,7 +226,7 @@ class KevinBaconGame {
 		int control;
 
 		//reader for movie-actor file
-		BufferedReader in = new BufferedReader(new FileReader("resource/movie-actors.txt"));
+		BufferedReader in = new BufferedReader(new FileReader(movieToActorsFilePath));
 		
 		//Array list storing names of all actors in one movie. 
 		//Cleared once moved on to another movie.
