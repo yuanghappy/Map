@@ -105,9 +105,12 @@ class KevinBaconGame {
 		//AvgMovieConnButton.setPreferredSize(new Dimension (150, 50));
 		AvgMovieConnButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
+				//***PROBLEM***
+				//how to make sure that line 111 and 112 are executed before 
+				//execution of line 114?
 				OutputDisplay.setText("Calculating...");
-				//disable all buttons to prevent interruption
 				disableButtons(true);
+				
 				avgMovieConnectivity();
 			}
 		});
