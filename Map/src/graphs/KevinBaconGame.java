@@ -40,6 +40,8 @@ class KevinBaconGame {
 	//Map of string and HashSet of strings for movie connectivity
 	//key of map is movie name, value is a hashset that contains all actors in that movie
 	HashMap<String, HashSet<String>> MovieConnMap;
+	//two strings storing the value of two analytic average number functions (#2 and #4)
+	String output2, output4;
 	
 	public KevinBaconGame() throws IOException{
 		buildCodetoNameMaps();
@@ -110,7 +112,6 @@ class KevinBaconGame {
 				//execution of line 114?
 				OutputDisplay.setText("Calculating...");
 				disableButtons(true);
-				
 				avgMovieConnectivity();
 			}
 		});
@@ -398,15 +399,18 @@ class KevinBaconGame {
 	//**For maximum efficiency, most code for this method is mixed into connectVertices method
 	//mechanism of this function is also explained in connectVertices method
 	private void avgConnectivity(){
-				
-		double totalConnection = 0;
-		for(HashSet hset : NonDupMap.values()){
-			totalConnection += hset.size();
+		
+		//check if the output has been calculated
+		if(output2 == null){
+			//calculation
+			double totalConnection = 0;
+			for(HashSet hset : NonDupMap.values()){
+				totalConnection += hset.size();
+			}
+			output2 = ("In average, each actor is directly connected to " +
+			(Math.round((totalConnection/actorName.size())*1000.0)/1000.0) + " actors.");
 		}
-		
-		OutputDisplay.setText(("In average, each actor is directly connected to " +
-		(Math.round((totalConnection/actorName.size())*1000.0)/1000.0) + " actors."));
-		
+		OutputDisplay.setText(output2);
 		disableButtons(false);
 		return;	
 	}
@@ -478,28 +482,33 @@ class KevinBaconGame {
 	//FUNCTION #4
 	//this returns the average number of common actors of all movies
 	private void avgMovieConnectivity(){
-		ArrayList<String> movieNameList = new ArrayList<String>();
-		float totalConnectivity = 0;
-		float moviePairs = 0;
 		
-		//convert name of all movies from map to array list of easier operation
-		for (String n : MovieConnMap.keySet()){
-			movieNameList.add(n);
-		}
-		int listSize = movieNameList.size();
-		
-		for(int i = 0; i < listSize; i++){
-			for(int j = i+1; j < listSize; j++){
-				for(String actor1 : MovieConnMap.get(movieNameList.get(i))){
-					if(MovieConnMap.get(movieNameList.get(j)).contains(actor1)){
-						totalConnectivity++;
+		//only run if no prior run was made
+		if(output4 == null){
+			ArrayList<String> movieNameList = new ArrayList<String>();
+			float totalConnectivity = 0;
+			float moviePairs = 0;
+			
+			//convert name of all movies from map to array list of easier operation
+			for (String n : MovieConnMap.keySet()){
+				movieNameList.add(n);
+			}
+			int listSize = movieNameList.size();
+			
+			for(int i = 0; i < listSize; i++){
+				for(int j = i+1; j < listSize; j++){
+					for(String actor1 : MovieConnMap.get(movieNameList.get(i))){
+						if(MovieConnMap.get(movieNameList.get(j)).contains(actor1)){
+							totalConnectivity++;
+						}
 					}
-				}
-				moviePairs ++;
-			}	
+					moviePairs ++;
+				}	
+			}
+			output4 = ("In average, any two movies have " +
+					Math.round((totalConnectivity/moviePairs)*1000)/1000.0 + " actors in common.");
 		}
-		OutputDisplay.setText("In average, any two movies have " +
-		Math.round((totalConnectivity/moviePairs)*1000)/1000.0 + " actors in common.");
+		OutputDisplay.setText(output4);
 		disableButtons(false);
 		return;
 	}
