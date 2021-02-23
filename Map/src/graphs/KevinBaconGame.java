@@ -145,6 +145,10 @@ class KevinBaconGame {
 		frame.setResizable(false);
 		frame.add(Panel);
 		frame.setVisible(true);
+		
+		disableButtons(true);
+		avgMovieConnectivity();
+
 	}
 	
 	
@@ -485,6 +489,7 @@ class KevinBaconGame {
 		
 		//only run if no prior run was made
 		if(output4 == null){
+			OutputDisplay.setText("Loading...");
 			ArrayList<String> movieNameList = new ArrayList<String>();
 			float totalConnectivity = 0;
 			float moviePairs = 0;
@@ -507,19 +512,15 @@ class KevinBaconGame {
 			}
 			output4 = ("In average, any two movies have " +
 					Math.round((totalConnectivity/moviePairs)*1000)/1000.0 + " actors in common.");
-		}
+			OutputDisplay.setText("Welcome to KBG!");
+		}else{
 		OutputDisplay.setText(output4);
+		}
 		disableButtons(false);
 		return;
 	}
 	
 	public static void main(String[] args) throws IOException{
 		KevinBaconGame myGame = new KevinBaconGame();
-		myGame.KBGgraph.search("kelly kilgour", "Lucy Briant");
-		//myGame.search("Sam Worthington", "Jon Curry");
-		//System.out.println("\n" + "Avg connectivity is: " + myGame.avgConnectivity());
-		//System.out.println("\nCommon actors between The Dark Knight Rises and Batman Begins: " + 
-		//"\n" + myGame.movieConnectivity(" the dark Knight rises", "batman begins"));
-		//System.out.println("\n" + "Avg movie connectivity is: " + myGame.avgMovieConnectivity());
 	}
 }
