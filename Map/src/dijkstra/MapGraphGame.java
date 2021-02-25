@@ -30,10 +30,10 @@ import dijkstra.MapGraphGame.Circle;
 class MapGraphGame {
 	int Mode;
 	Graph<Circle> g;
-	int width = 1000;
-	int height = 900;
+	int width = 825;
+	int height = 800;
 	//*EDIT* Background image file path
-	String BackgroundPath = "/Map/resource/BackgroundImg.jpg";
+	String BackgroundPath = "resource/BackgroundImg.jpg";
 	
 	MapGraphGame(){
 		//MainPanel
@@ -51,7 +51,7 @@ class MapGraphGame {
 			});
 			//Confirm Setup Button
 			JButton ConfirmButton = new JButton("Confirm Setup");
-			ConfirmButton.setPreferredSize(new Dimension (150, 50));
+			ConfirmButton.setPreferredSize(new Dimension (150, 30));
 			ConfirmButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e){
 					ConfirmSetup();
@@ -60,11 +60,12 @@ class MapGraphGame {
 		JPanel ControlPanel = new JPanel();
 		ControlPanel.add(ModeSelector);
 		ControlPanel.add(ConfirmButton);
-		ControlPanel.setPreferredSize(new Dimension (width-50, height/8));
+		ControlPanel.setPreferredSize(new Dimension (width-50, height/10));
 		ControlPanel.setBorder(BorderFactory.createTitledBorder("SetUp"));
 		MainPanel.add(ControlPanel);
 		//Game Panel
 		Gamepanel gp = new Gamepanel();
+		gp.setPreferredSize(new Dimension (width-50, 7*height/8));
 		MainPanel.add(gp);
 		//JFrame
 		JFrame frame = new JFrame();
@@ -124,6 +125,7 @@ class MapGraphGame {
 			if(Mode == 1){
 				Circle c = new Circle (e.getX(), e.getY());
 				circleArrayList.add(c);
+				this.repaint();
 				//Circle is the type of information that vertices carries
 				//g.addVertex(c, e.getX(), e.getY());
 			}

@@ -6,14 +6,33 @@ import java.util.HashSet;
 public class Graph<E> {
 	
 	HashMap<E, Vertex> vertices;
+	HashSet<Edge> edges;
 
 	public Graph() {
 		vertices = new HashMap<E, Vertex>();
+		edges = new HashSet<Edge>();
 	}
 	
 	public void addVertex(E info, int x, int y) {
 		vertices.put(info, new Vertex(info, x, y));
 	}
+	
+	/*
+	public void removeVertex(E info){
+		Vertex deleteV = vertices.get(info);
+		//remove all connections with this deleting vertex
+		ArrayList<Edge> deleteList = new ArrayList<Edge>();
+		for(Edge e : edges){
+			if(e.v1.equals(deleteV) || e.v2.equals(deleteV)){
+				deleteList.add(e);
+			}
+		}
+		for(Edge e : deleteList){
+			edges.remove(e);
+		}
+		vertices.remove(info);
+	}
+	*/
 	
 	public void connect(E info1, E info2) {
 		Vertex v1 = vertices.get(info1);
@@ -22,6 +41,7 @@ public class Graph<E> {
 		Edge e = new Edge(v1, v2);
 		v1.neighbors.add(e);
 		v2.neighbors.add(e);
+		edges.add(e);
 	}
 	
 	private class Edge {
@@ -30,6 +50,7 @@ public class Graph<E> {
 		
 		public Edge(Vertex v1, Vertex v2){
 			this.v1 = v1; this.v2 = v2;
+			//calculate distance between two vertices and store it in Edge label
 			this.label = (int) Math.hypot(v1.x-v2.x, v1.y-v2.y);
 		}
 		
