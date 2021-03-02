@@ -6,33 +6,33 @@ import java.util.HashSet;
 public class Graph<E> {
 	
 	HashMap<E, Vertex> vertices;
-	HashSet<Edge> edges;
 
 	public Graph() {
 		vertices = new HashMap<E, Vertex>();
-		edges = new HashSet<Edge>();
 	}
 	
 	public void addVertex(E info, int x, int y) {
 		vertices.put(info, new Vertex(info, x, y));
 	}
 	
-	/*
 	public void removeVertex(E info){
+		//target vertex to remove
 		Vertex deleteV = vertices.get(info);
-		//remove all connections with this deleting vertex
-		ArrayList<Edge> deleteList = new ArrayList<Edge>();
-		for(Edge e : edges){
-			if(e.v1.equals(deleteV) || e.v2.equals(deleteV)){
-				deleteList.add(e);
+		//go through every neighbor of the target vertex
+		for(Edge neighborE : deleteV.neighbors){
+			Vertex neighborV = neighborE.getneighbor(deleteV);
+			//go through the neighbors hashset annd remove the edge that connects
+			//that neighbor with the target vertex
+			for(Edge e : neighborV.neighbors){
+				if(e.getneighbor(neighborV).equals(deleteV)){
+					neighborV.neighbors.remove(e);
+					break;
+				}
 			}
+			//remove the target vertex
+			vertices.remove(info);
 		}
-		for(Edge e : deleteList){
-			edges.remove(e);
-		}
-		vertices.remove(info);
 	}
-	*/
 	
 	public void connect(E info1, E info2) {
 		Vertex v1 = vertices.get(info1);
@@ -41,7 +41,6 @@ public class Graph<E> {
 		Edge e = new Edge(v1, v2);
 		v1.neighbors.add(e);
 		v2.neighbors.add(e);
-		edges.add(e);
 	}
 	
 	private class Edge {
@@ -160,5 +159,9 @@ public class Graph<E> {
 				g.connect("D", "E");
 				g.connect("C", "E");
 				System.out.println(g.search("A", "C"));
+				g.removeVertex("D");
+				System.out.println("D removed");
+				System.out.println(g.search("A", "C"));
+
 	}
 }
