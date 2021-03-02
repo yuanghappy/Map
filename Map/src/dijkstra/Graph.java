@@ -29,9 +29,11 @@ public class Graph<E> {
 					break;
 				}
 			}
-			//remove the target vertex
-			vertices.remove(info);
 		}
+		//remove the target vertex
+		vertices.remove(info, deleteV);
+		System.out.print("removed");
+
 	}
 	
 	public void connect(E info1, E info2) {
@@ -43,7 +45,7 @@ public class Graph<E> {
 		v2.neighbors.add(e);
 	}
 	
-	private class Edge {
+	public class Edge {
 		int label;
 		Vertex v1, v2;
 		
@@ -62,7 +64,7 @@ public class Graph<E> {
 		}
 	}
 
-	private class Vertex {
+	public class Vertex {
 		E info;
 		int x, y;
 		HashSet<Edge> neighbors;
