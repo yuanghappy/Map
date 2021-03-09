@@ -5,15 +5,22 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -37,7 +44,9 @@ class MapGraphGame {
 	int height = 800;
 	//*EDIT* Background image file path
 	String BackgroundPath = "resource/BackgroundImg.jpg";
-	
+	//*EDIT* map file saving path
+	String MapPath = "resource/Saved_Map";
+
 	MapGraphGame(){
 		g = new Graph<Circle>();
 		Mode = 0;
@@ -63,9 +72,18 @@ class MapGraphGame {
 					ConfirmSetup();
 				}
 			});
+			//Import Setup Button
+			JButton ImportButton = new JButton("Import Saved Map");
+			ImportButton.setPreferredSize(new Dimension (150, 30));
+			ImportButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e){
+					ImportMap(MapPath);
+				}
+			});
 		JPanel ControlPanel = new JPanel();
 		ControlPanel.add(ModeSelector);
 		ControlPanel.add(ConfirmButton);
+		ControlPanel.add(ImportButton);
 		ControlPanel.setPreferredSize(new Dimension (width-50, height/10));
 		ControlPanel.setBorder(BorderFactory.createTitledBorder("SetUp"));
 		MainPanel.add(ControlPanel);
@@ -85,11 +103,101 @@ class MapGraphGame {
 	}
 	
 	private void ConfirmSetup(){
-		//***SETUP
-		//build graph
-		g = new Graph<Circle>();
+		
 
 		//write text file
+		try {
+   		 BufferedWriter writer = new BufferedWriter(new FileWriter(MapPath));
+   		    for(Circle c : g.vertices.keySet()){
+   		    	int x;
+   		    	writer.write(c.name + "\n" + c.getX() + "\n" + c.getY());
+   		    	writer.newLine();
+   		    }
+   		    writer.write("@~~Connections_Below");
+   		    for(Edge e : g.connections){
+   	   		    writer.newLine();
+   		    	writer.write(e.v1.x + "\n" + e.v1.y + "\n" + e.v2.x + "\n" + e.v2.y);
+   		    }
+   		    writer.close();
+   	      System.out.println("Map Saved");
+   	    } catch (IOException a) {
+   	      System.out.println("An error occurred in saving process");
+   	      a.printStackTrace();
+   	      System.exit(0);
+   	    }
+	}
+	
+	//building graph from user's saved info
+	private void ImportMap(String path){
+		System.out.print("Import");
+		//read file
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String s;
+			//Since we are importing a new map, wiping anything the user might have created
+			//prior to importing
+			g.vertices.clear();
+			g.connections.clear();
+			//Read file
+			//Hash map of coordinates and circles for connections
+			HashMap<Point, Circle> PointCircleMap = new HashMap<Point, Circle>();
+			//boolean determining if reader has progressed to connection section of the text file
+			Boolean isConnection = false;
+			//control variable
+			int LineOrder = 1;
+			String name = null;
+			int x = 0; int x1 = 0; int x2 = 0;
+			int y = 0; int y1 = 0; int y2 = 0;
+			
+			while((s = reader.readLine()) != null){
+				//check if this line is the separator between vertex and connection storage
+				if(s.equals("@~~Connections_Below")){isConnection = true; continue;}
+				//In the vertex storage section
+				if(!isConnection){
+					switch(LineOrder){
+						case 1:
+							name = s;
+							LineOrder++;
+							break;
+						case 2:
+							x = Integer.parseInt(s);
+							LineOrder++;
+							break;
+						case 3:
+							y = Integer.parseInt(s);
+							Circle c = new Circle(name, x, y);
+							g.addVertex(c, x, y);
+							PointCircleMap.put(new Point(x,y), c);
+							LineOrder = 1;
+							break;
+					}
+				}else{
+					switch(LineOrder){
+					case 1:
+						x1 = Integer.parseInt(s);
+						LineOrder++;
+						break;
+					case 2:
+						y1 = Integer.parseInt(s);
+						LineOrder++;
+						break;
+					case 3:
+						x2 = Integer.parseInt(s);
+						LineOrder++;
+						break;
+					case 4:
+						y2 = Integer.parseInt(s);
+						g.connect(PointCircleMap.get(new Point(x1,y1)), PointCircleMap.get(new Point(x2,y2)));
+						LineOrder = 1;
+						break;
+					}
+				}
+			}
+			reader.close();
+		} catch (IOException e) {
+			System.out.print("file not found");
+			e.printStackTrace();
+		}
 	}
 	
 	class Gamepanel extends JPanel implements MouseListener{
@@ -145,7 +253,8 @@ class MapGraphGame {
 						 return;
 					 }
 				}
-				Circle c = new Circle (x, y);
+				String name = JOptionPane.showInputDialog("Name the node:");
+				Circle c = new Circle (name, x, y);
 				g.addVertex(c, x, y);
 				System.out.println("Added: " + e.getX() + ", " + e.getY());
 				this.repaint();
@@ -204,7 +313,6 @@ class MapGraphGame {
 				System.out.println(connectionArrayList.size());
 			}
 	}
-
 	
 	private void removeConnection(Circle c1, Circle c2) {
 		for(Edge e : g.vertices.get(c1).neighbors){
@@ -212,6 +320,17 @@ class MapGraphGame {
 				g.vertices.get(c1).neighbors.remove(e);
 				g.vertices.get(c2).neighbors.remove(e);
 				System.out.print("remove connection 1");
+				break;
+			}
+		}
+		// remove connection edge from the connections hash set in graph
+		for(Edge e: g.connections){
+			if(e.v1.info.equals(c1) && e.v2.info.equals(c2)){
+				g.connections.remove(e);
+				break;
+			}
+			if(e.v2.info.equals(c1) && e.v1.info.equals(c2)){
+				g.connections.remove(e);
 				break;
 			}
 		}
@@ -228,7 +347,7 @@ class MapGraphGame {
 		System.out.print("No Connection");
 		return false;
 	}
-
+	
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -254,16 +373,20 @@ class MapGraphGame {
 	}
 
 }
+	
 
 	class Circle{
 		
-		private int x, y, width, UpperLeftX, UpperLeftY;
+		String name;
+		int width, UpperLeftX, UpperLeftY;
 		Color c;
+		Point point;
 		
-		
-		public Circle(int x, int y) {
-			this.x = x;
-			this.y = y;
+		public Circle(String name, int x, int y) {
+			this.name = name.trim();
+			//if no input, set name to a space to serve as space filler
+			if(name.trim().length()==0){this.name = " ";}
+			point = new Point(x,y);
 			width = 30;
 			c = Color.WHITE;
 			//x and y are center coordinates
@@ -276,22 +399,23 @@ class MapGraphGame {
 		}
 
 		public int getX(){
-			return x;
+			return point.x;
 		}
 		
 		public int getY(){
-			return y;
+			return point.y;
 		}
 
 		public void draw(Graphics g) {
-			UpperLeftX = x-width/2;
-			UpperLeftY = y-width/2;
+			UpperLeftX = point.x-width/2;
+			UpperLeftY = point.y-width/2;
 			g.setColor(c);
 			g.fillOval(UpperLeftX, UpperLeftY, width, width);
+			g.drawString(name, UpperLeftX, UpperLeftY);
 		}
 
 		public boolean isOn(int mouseX, int mouseY) {
-			if(Math.sqrt((mouseX-x)*(mouseX-x)+(mouseY-y)*(mouseY-y)) <= width/2){
+			if(Math.sqrt((mouseX-point.x)*(mouseX-point.x)+(mouseY-point.y)*(mouseY-point.y)) <= width/2){
 				System.out.println("true");
 				return true;
 			}	
@@ -300,11 +424,12 @@ class MapGraphGame {
 
 		public void resize(int width) {
 			this.width = width;
-			UpperLeftX = x-width/2;
-			UpperLeftY = y-width/2;	
+			UpperLeftX = point.x-width/2;
+			UpperLeftY = point.y-width/2; 
 		}
 
 	}
+	
 	
 	public static void main(String[] args){
 		MapGraphGame myGame = new MapGraphGame();

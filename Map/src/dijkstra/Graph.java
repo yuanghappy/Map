@@ -6,9 +6,11 @@ import java.util.HashSet;
 public class Graph<E> {
 	
 	HashMap<E, Vertex> vertices;
+	HashSet<Edge> connections;
 
 	public Graph() {
 		vertices = new HashMap<E, Vertex>();
+		connections = new HashSet<Edge>();
 	}
 	
 	public void addVertex(E info, int x, int y) {
@@ -21,11 +23,15 @@ public class Graph<E> {
 		//go through every neighbor of the target vertex
 		for(Edge neighborE : deleteV.neighbors){
 			Vertex neighborV = neighborE.getneighbor(deleteV);
-			//go through the neighbors hashset annd remove the edge that connects
+			//go through the neighbors hashset and remove the edge that connects
 			//that neighbor with the target vertex
 			for(Edge e : neighborV.neighbors){
 				if(e.getneighbor(neighborV).equals(deleteV)){
 					neighborV.neighbors.remove(e);
+					//remove the edge from connections hash set
+					if(connections.contains(e)){
+						connections.remove(e);
+					}
 					break;
 				}
 			}
@@ -43,6 +49,7 @@ public class Graph<E> {
 		Edge e = new Edge(v1, v2);
 		v1.neighbors.add(e);
 		v2.neighbors.add(e);
+		connections.add(e);
 	}
 	
 	public class Edge {
