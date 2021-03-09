@@ -50,6 +50,9 @@ class MapGraphGame {
 	MapGraphGame(){
 		g = new Graph<Circle>();
 		Mode = 0;
+		//Game Panel
+		Gamepanel gp = new Gamepanel();
+		gp.setPreferredSize(new Dimension (width-50, 7*height/8));
 		//MainPanel
 		JPanel MainPanel = new JPanel();
 		BoxLayout layout = new BoxLayout(MainPanel, BoxLayout.Y_AXIS);
@@ -78,6 +81,7 @@ class MapGraphGame {
 			ImportButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e){
 					ImportMap(MapPath);
+					gp.repaint();
 				}
 			});
 		JPanel ControlPanel = new JPanel();
@@ -87,9 +91,6 @@ class MapGraphGame {
 		ControlPanel.setPreferredSize(new Dimension (width-50, height/10));
 		ControlPanel.setBorder(BorderFactory.createTitledBorder("SetUp"));
 		MainPanel.add(ControlPanel);
-		//Game Panel
-		Gamepanel gp = new Gamepanel();
-		gp.setPreferredSize(new Dimension (width-50, 7*height/8));
 		MainPanel.add(gp);
 		//JFrame
 		JFrame frame = new JFrame();
@@ -103,8 +104,6 @@ class MapGraphGame {
 	}
 	
 	private void ConfirmSetup(){
-		
-
 		//write text file
 		try {
    		 BufferedWriter writer = new BufferedWriter(new FileWriter(MapPath));
@@ -128,6 +127,7 @@ class MapGraphGame {
 	}
 	
 	//building graph from user's saved info
+	
 	private void ImportMap(String path){
 		System.out.print("Import");
 		//read file
@@ -196,10 +196,11 @@ class MapGraphGame {
 			reader.close();
 		} catch (IOException e) {
 			System.out.print("file not found");
-			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 	
+
 	class Gamepanel extends JPanel implements MouseListener{
 		//image for background
 		BufferedImage img;
@@ -236,6 +237,10 @@ class MapGraphGame {
 					Circle c = (Circle) v.info;
 					c.draw(gr);
 			  }
+			  
+			  for(Edge e : g.connections){
+				  gr.drawLine(e.v1.x, e.v1.y, e.v2.x, e.v2.y);
+			  }
 		  }
 	  }
 	  
@@ -254,12 +259,12 @@ class MapGraphGame {
 					 }
 				}
 				String name = JOptionPane.showInputDialog("Name the node:");
+				if(name!=null){
 				Circle c = new Circle (name, x, y);
 				g.addVertex(c, x, y);
 				System.out.println("Added: " + e.getX() + ", " + e.getY());
 				this.repaint();
-				//Circle is the type of information that vertices carries
-				//g.addVertex(c, e.getX(), e.getY());
+				}
 			}
 			//remove vertex mode
 			//*****EDIT, how to remove the associated vertex and edges in graph?
@@ -431,6 +436,7 @@ class MapGraphGame {
 	}
 	
 	
+
 	public static void main(String[] args){
 		MapGraphGame myGame = new MapGraphGame();
 	}
