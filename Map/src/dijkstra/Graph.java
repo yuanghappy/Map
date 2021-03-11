@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import dijkstra.MapGraphGame.Circle;
+
 public class Graph<E> {
 	
 	HashMap<E, Vertex> vertices;
@@ -85,7 +87,7 @@ public class Graph<E> {
 		
 	}
 	
-	public ArrayList<Object> search(E start, E target) {
+	public ArrayList<Circle> search(E start, E target) {
 		
 		Vertex startV = vertices.get(start);
 		Vertex targetV = vertices.get(target);
@@ -140,37 +142,17 @@ public class Graph<E> {
 		return null;
 	}
 	
-	public ArrayList<Object> backtrace(Vertex target, HashMap<Vertex, Edge> leadsTo) {
+	public ArrayList<Circle> backtrace(Vertex target, HashMap<Vertex, Edge> leadsTo) {
 		
 		Vertex curr = target;
-		ArrayList<Object> path = new ArrayList<Object>();
-		path.add(0, curr.info.toString());
+		ArrayList<Circle> path = new ArrayList<Circle>();
+		path.add(0, (Circle) curr.info);
 
 		while (leadsTo.get(curr) != null) {
-			path.add(0, leadsTo.get(curr).getneighbor(curr).info.toString());
+			path.add(0, (Circle) leadsTo.get(curr).getneighbor(curr).info);
 			curr = leadsTo.get(curr).getneighbor(curr);
 		}
 
 		return path;	
-	}
-		
-	public static void main(String[] args) {
-		
-		Graph<String> g = new Graph<String>();
-				g.addVertex("A", 1, 1);
-				g.addVertex("B", 3, 8);
-				g.addVertex("C", 5, 1);
-				g.addVertex("D", 2, -2);
-				g.addVertex("E", 3, 0);
-				g.connect("A", "B");
-				g.connect("C", "B");
-				g.connect("A", "D");
-				g.connect("D", "E");
-				g.connect("C", "E");
-				System.out.println(g.search("A", "C"));
-				g.removeVertex("D");
-				System.out.println("D removed");
-				System.out.println(g.search("A", "C"));
-
 	}
 }

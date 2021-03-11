@@ -58,17 +58,21 @@ class MapGraphGame {
 		BoxLayout layout = new BoxLayout(MainPanel, BoxLayout.Y_AXIS);
 		//Control Panel
 			//Mode Selector
-			String[]s1 = {"Add Vertex", "Remove Vertex", "Manage Connection"};
+			String[]s1 = {"Add Vertex", "Remove Vertex", "Manage Connection", "Navigate"};
 			JComboBox ModeSelector = new JComboBox(s1);
 			ModeSelector.setSelectedIndex(0);
 			ModeSelector.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e){
 					Mode = ModeSelector.getSelectedIndex();
-					System.out.println(Mode);
+					if(gp.cStored != null){
+						gp.cStored.changeColor(Color.WHITE);
+						gp.cStored = null;
+						gp.repaint();
+					}
 				}
 			});
 			//Confirm Setup Button
-			JButton ConfirmButton = new JButton("Confirm Setup");
+			JButton ConfirmButton = new JButton("Save Map");
 			ConfirmButton.setPreferredSize(new Dimension (150, 30));
 			ConfirmButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e){
@@ -89,7 +93,7 @@ class MapGraphGame {
 		ControlPanel.add(ConfirmButton);
 		ControlPanel.add(ImportButton);
 		ControlPanel.setPreferredSize(new Dimension (width-50, height/10));
-		ControlPanel.setBorder(BorderFactory.createTitledBorder("SetUp"));
+		ControlPanel.setBorder(BorderFactory.createTitledBorder("GameControl"));
 		MainPanel.add(ControlPanel);
 		MainPanel.add(gp);
 		//JFrame
@@ -210,6 +214,8 @@ class MapGraphGame {
 		ArrayList<Circle> connectionArrayList = new ArrayList<Circle>();
 		//Circle for storing the first user input for connection function
 		Circle cStored;
+		//Array list for path
+		ArrayList<Circle> pathList;
 		
 		public Gamepanel(){
 			//background image
@@ -238,8 +244,17 @@ class MapGraphGame {
 					c.draw(gr);
 			  }
 			  
+			  gr.setColor(Color.WHITE);
 			  for(Edge e : g.connections){
 				  gr.drawLine(e.v1.x, e.v1.y, e.v2.x, e.v2.y);
+			  }
+			  
+			  //draw search path if there is one
+			  if(pathList!=null){
+				  gr.setColor(Color.green);
+				  for(int i = 0; i < pathList.size()-1; i++){
+					  gr.drawLine(pathList.get(i).getX(), pathList.get(i).getY(), pathList.get(i+1).getX(), pathList.get(i+1).getY());
+				  }
 			  }
 		  }
 	  }
@@ -311,11 +326,39 @@ class MapGraphGame {
 						 this.repaint();
 						 break;
 					 }
-				}
-				
-					 
-				 this.repaint();
-				System.out.println(connectionArrayList.size());
+				}	 
+				this.repaint();
+			}
+			//Dijkstra Search Mode
+			else if(Mode == 3){
+				for(Vertex v : g.vertices.values()){
+					Circle c = (Circle) v.info;
+					if(c.isOn(x, y)){
+						 if(cStored==null){
+							 cStored = c;
+							 c.changeColor(Color.GREEN);
+						 }else if(!c.equals(cStored)){
+							 c.changeColor(Color.GREEN);
+							 this.repaint();
+							 int dialogButton = JOptionPane.YES_NO_OPTION;
+							 int dialogResult = JOptionPane.showConfirmDialog(this, "Navigate", "Find Path", dialogButton);
+							 if(dialogResult == 0){
+								pathList = g.search(c, cStored);
+								this.repaint();
+							 }else{
+								 cStored.changeColor(Color.WHITE);
+								 c.changeColor(Color.WHITE);
+							 }
+							 //add connection line
+							 // c.changeColor(Color.WHITE);
+							 //cStored.changeColor(Color.WHITE);
+							 cStored = null;
+						 }
+						 this.repaint();
+						 break;
+					 }
+				}	 
+				this.repaint();
 			}
 	}
 	
