@@ -64,11 +64,8 @@ class MapGraphGame {
 			ModeSelector.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e){
 					Mode = ModeSelector.getSelectedIndex();
-					if(gp.cStored != null){
-						gp.cStored.changeColor(Color.WHITE);
-						gp.cStored = null;
-						gp.repaint();
-					}
+					gp.allWhite();
+					gp.cStored = null;
 				}
 			});
 			//Confirm Setup Button
@@ -199,7 +196,7 @@ class MapGraphGame {
 			}
 			reader.close();
 		} catch (IOException e) {
-			System.out.print("file not found");
+			System.out.print("Map file not found. Please edit its path at top of this program or save new map.");
 			System.exit(0);
 		}
 	}
@@ -222,7 +219,8 @@ class MapGraphGame {
 			try{
 				img = ImageIO.read(new File(BackgroundPath));
 			}catch (IOException e){
-				e.printStackTrace();
+				System.out.print("background image file not found. Please edit its path at top of this program.");
+				System.exit(0);
 			}
 			this.addMouseListener(this);
 			cStored = null;
@@ -334,10 +332,15 @@ class MapGraphGame {
 				for(Vertex v : g.vertices.values()){
 					Circle c = (Circle) v.info;
 					if(c.isOn(x, y)){
+						//when user has not selected initial vertex
 						 if(cStored==null){
+							 //change all vertex to white
+							 allWhite();
 							 cStored = c;
 							 c.changeColor(Color.GREEN);
-						 }else if(!c.equals(cStored)){
+						 }
+						 //when user selected initial vertex and current selection is different
+						 else if(!c.equals(cStored)){
 							 c.changeColor(Color.GREEN);
 							 this.repaint();
 							 int dialogButton = JOptionPane.YES_NO_OPTION;
@@ -349,9 +352,11 @@ class MapGraphGame {
 								 cStored.changeColor(Color.WHITE);
 								 c.changeColor(Color.WHITE);
 							 }
-							 //add connection line
-							 // c.changeColor(Color.WHITE);
-							 //cStored.changeColor(Color.WHITE);
+							 cStored = null;
+						 }
+						 //when user selected same vertex as initial
+						 else{
+							 cStored.changeColor(Color.WHITE);
 							 cStored = null;
 						 }
 						 this.repaint();
@@ -362,6 +367,15 @@ class MapGraphGame {
 			}
 	}
 	
+	//set all vertex color to white
+	private void allWhite() {
+		for(Vertex v2 : g.vertices.values()){
+			Circle c2 = (Circle) v2.info;
+			c2.changeColor(Color.WHITE);
+	 }
+	 this.repaint();
+	}
+
 	private void removeConnection(Circle c1, Circle c2) {
 		for(Edge e : g.vertices.get(c1).neighbors){
 			if(e.getneighbor(g.vertices.get(c1)).info.equals(c2)){
