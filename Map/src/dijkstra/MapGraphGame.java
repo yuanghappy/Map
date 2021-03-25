@@ -85,10 +85,30 @@ class MapGraphGame {
 					gp.repaint();
 				}
 			});
+			//Instruction Button
+			//Import Setup Button
+			JButton InstructionButton = new JButton("?");
+			InstructionButton.setPreferredSize(new Dimension (30, 30));
+			InstructionButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e){
+					String info = "Welcome to the most robust Interstellar Navigator! \n\n"
+							    + "Use the mode selector combobox to choose \n"
+							    + "the function of this application. \n\n"
+							    + "1.You can add and remove vertices and connections. \n"
+							    + "2.You can use navigate mode to find the shortest \n"
+							    + "path between any two connected vertices. \n"
+							    + "3.You can store the vertices and connections \n"
+							    + "you made to conveniently import them next time \n"
+							    + "you use the application!";
+			        JOptionPane.showMessageDialog(null, info, "Instructions", JOptionPane.INFORMATION_MESSAGE);
+
+				}
+			});
 		JPanel ControlPanel = new JPanel();
 		ControlPanel.add(ModeSelector);
 		ControlPanel.add(ConfirmButton);
 		ControlPanel.add(ImportButton);
+		ControlPanel.add(InstructionButton);
 		ControlPanel.setPreferredSize(new Dimension (width-50, height/10));
 		ControlPanel.setBorder(BorderFactory.createTitledBorder("GameControl"));
 		MainPanel.add(ControlPanel);
