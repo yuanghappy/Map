@@ -12,9 +12,13 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextArea;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,25 +30,29 @@ public class WikiGame {
 	HashMap shortUrlToDisplayedName = new HashMap<String, String>();
 	private final int height=800, width=1000;
 	private JTextArea input1, input2, display;
+	private JSpinner iterationSelector;
 	
 	public WikiGame(){
 		//UI
 		JPanel panel = new JPanel();
 		BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
-		panel.setBorder(BorderFactory.createTitledBorder("Wiki Direct"));
+		panel.setBorder(BorderFactory.createTitledBorder("Wiki Game"));
 		
-		input1 = new JTextArea();input1.setEditable(true);input1.setPreferredSize(new Dimension(width-100, height/10));
-		input2 = new JTextArea();input2.setEditable(true);input2.setPreferredSize(new Dimension(width-100, height/10));
+		input1 = new JTextArea();input1.setEditable(true);input1.setPreferredSize(new Dimension(width-100, height/12));
+		input2 = new JTextArea();input2.setEditable(true);input2.setPreferredSize(new Dimension(width-100, height/12));
 		display = new JTextArea();display.setEditable(false);display.setLineWrap(true);display.setWrapStyleWord(true);
-		
+		SpinnerModel model = new SpinnerNumberModel(320, 10, 1000, 10);     
+		iterationSelector = new JSpinner(model);
+
 		JScrollPane scroll = new JScrollPane(display, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scroll.setPreferredSize(new Dimension(width-100, 2*height/3));
+		scroll.setPreferredSize(new Dimension(width-100, height/2));
 		
 		JButton searchButton = new JButton("Search");
 		searchButton.setPreferredSize(new Dimension (width-500, 30));
 		searchButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String s1, s2;
+				ArrayList<String> displayArray = new ArrayList<String>();	
+				String s1, s2, displayS = "";
 				s1 = input1.getText().trim();
 				s2 = input2.getText().trim();
 				//check to see if input exists
@@ -62,8 +70,21 @@ public class WikiGame {
 					display.setText("No wiki entry exists for starting keyword.\nTry another one.");
 					return;
 				}
-					
-				display.setText(search(s1, s2).toString());
+				displayArray = search(s1, s2);
+				//return will be null once the while loop in search exceeds 350 iterations
+				//this prevents the program from finding connections that do not exist 
+				if(displayArray==null){
+					display.setText("Your starting point and target are too far apart.");
+					return;
+				}
+				//generate return display format
+				displayS += "Starting point: " + s1 + "\nUltimate Target: " + s2 + "\nIteration: " + (int)iterationSelector.getValue() + "\n\n";
+				for(int i = 0; i < displayArray.size(); i++){
+					displayS += Integer.toString(i+1) + ". " + displayArray.get(i) + "\n";
+				}
+				display.setText(displayS);
+				input1.setText("");
+				input2.setText("");
 			}
 
 			private String addUnderScore(String s) {
@@ -79,8 +100,15 @@ public class WikiGame {
 			}
 		});
 		
+		JLabel label1 = new JLabel("Starting Point");
+		JLabel label2 = new JLabel("Ultimate Target");
+		JLabel label3 = new JLabel("Max Search Iterations");
+		panel.add(label1);
 		panel.add(input1);
+		panel.add(label2);
 		panel.add(input2);
+		panel.add(label3);
+		panel.add(iterationSelector);
 		panel.add(searchButton);
 		panel.add(scroll);
 		
@@ -106,7 +134,9 @@ public class WikiGame {
 		
 		HashMap<String, String> leadsTo = new HashMap<String, String>();
 		
-		while (!toVisit.isEmpty()){
+		int i = 0; 
+		
+		while (!toVisit.isEmpty() && i< (int)iterationSelector.getValue()){
 			
 			Vertex curr = new Vertex(toVisit.remove(0));
 						
@@ -123,6 +153,7 @@ public class WikiGame {
 					visited.add(s);
 				}
 			}
+			i++;
 		}
 		return null;
 	}
