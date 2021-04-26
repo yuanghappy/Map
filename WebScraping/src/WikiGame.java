@@ -74,12 +74,13 @@ public class WikiGame {
 				//return will be null once the while loop in search exceeds 350 iterations
 				//this prevents the program from finding connections that do not exist 
 				if(displayArray==null){
-					display.setText("Your starting point and target are too far apart.");
+					display.setText("Your starting point and target are too far apart.\nTry another search or increase max web pages to search.");
 					return;
 				}
 				//generate return display format
-				displayS += "Starting point: " + s1 + "\nUltimate Target: " + s2 + "\nIteration: " + (int)iterationSelector.getValue() + "\n\n";
-				for(int i = 0; i < displayArray.size(); i++){
+				displayS += "Starting point: " + s1 + "\nUltimate Target: " + s2 +
+						"\nPages searched: " + displayArray.get(displayArray.size()-1) + "\n\n";
+				for(int i = 0; i < displayArray.size()-1; i++){
 					displayS += Integer.toString(i+1) + ". " + displayArray.get(i) + "\n";
 				}
 				display.setText(displayS);
@@ -102,7 +103,7 @@ public class WikiGame {
 		
 		JLabel label1 = new JLabel("Starting Point");
 		JLabel label2 = new JLabel("Ultimate Target");
-		JLabel label3 = new JLabel("Max Search Iterations");
+		JLabel label3 = new JLabel("Max Web Pages to Search");
 		panel.add(label1);
 		panel.add(input1);
 		panel.add(label2);
@@ -147,7 +148,7 @@ public class WikiGame {
 				leadsTo.put(s, curr.shortUrl);
 				
 				if (this.compareKeyWords(s, target)) {		
-					return backtrace(s, leadsTo);
+					return backtrace(s, leadsTo, i);
 				}else {
 					toVisit.add(s);
 					visited.add(s);
@@ -158,7 +159,7 @@ public class WikiGame {
 		return null;
 	}
 	
-	public ArrayList<String> backtrace(String target, HashMap<String, String> leadsTo) {
+	public ArrayList<String> backtrace(String target, HashMap<String, String> leadsTo, int i) {
 			
 			String curr = target;
 			ArrayList<String> path = new ArrayList<String>();
@@ -167,7 +168,8 @@ public class WikiGame {
 			while (leadsTo.get(curr) != null) {
 				path.add(0, leadsTo.get(curr));
 				curr = leadsTo.get(curr);
-			}						
+			}	
+			path.add(Integer.toString(i));
 			return path;	
 	}
 	
